@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pengumuman Hasil Seleksi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        .success-badge {
+            background: linear-gradient(135deg, #0be881 0%, #05c46b 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-3xl">
+        <!-- Form Pendaftaran -->
+        <div id="registrationForm" class="bg-white rounded-2xl p-8 card-shadow">
+            <div class="flex justify-center mb-6">
+                <img src="https://placehold.co/200x80?text=Sistem+Seleksi" alt="Logo Sistem Seleksi Administrator" class="h-20">
+            </div>
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-8">PENDAFTARAN ADMINISTRATOR</h1>
+            
+            <form id="formDaftar" class="space-y-6">
+                <div>
+                    <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="nama" name="nama" required 
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                </div>
+                
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" id="username" name="username" required 
+                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Apakah Anda Fast Response?</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="fastResponse" value="Ya" required 
+                                class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="text-gray-700">Ya, saya selalu merespon cepat</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="fastResponse" value="Tidak" 
+                                class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                            <span class="text-gray-700">Tidak selalu, tergantung situasi</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="flex items-start">
+                        <input type="checkbox" id="yakinAdmin" required 
+                            class="mt-1 h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">
+                            Saya yakin dan bersedia menjadi Administrator dengan tanggung jawab penuh terhadap tugas yang diberikan.
+                        </span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-semibold hover:opacity-90 transition-all">
+                    KIRIM PENDAFTARAN
+                </button>
+            </form>
+        </div>
+        
+        <!-- Hasil Pengumuman -->
+        <div id="hasilPengumuman" class="hidden bg-white rounded-2xl p-8 card-shadow mt-6">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">PENGUMUMAN HASIL SELEKSI</h2>
+            
+            <div id="hasilContainer" class="space-y-4">
+                <!-- Hasil akan ditampilkan di sini -->
+            </div>
+            
+            <div class="mt-8 p-4 rounded-lg bg-blue-50 border border-blue-200 text-center">
+                <p class="text-blue-800">Semua peserta yang mendaftar sebagai administrator akan dinyatakan LOLOS seleksi.</p>
+                <p class="text-blue-800 font-semibold mt-2">Tidak ada yang tidak lolos.</p>
+            </div>
+            
+            <button id="btnKembali" class="w-full mt-6 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-all">
+                Daftar Lagi
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const formDaftar = document.getElementById('formDaftar');
+        const registrationForm = document.getElementById('registrationForm');
+        const hasilPengumuman = document.getElementById('hasilPengumuman');
+        const hasilContainer = document.getElementById('hasilContainer');
+        const btnKembali = document.getElementById('btnKembali');
+        
+        // Data pendaftar yang disimpan
+        let semuaPendaftar = [];
+        
+        formDaftar.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Ambil data form
+            const formData = new FormData(this);
+            const dataPendaftar = {
+                nama: formData.get('nama'),
+                username: formData.get('username'),
+                fastResponse: formData.get('fastResponse'),
+                tanggalDaftar: new Date().toLocaleString()
+            };
+            
+            // Simpan data pendaftar
+            semuaPendaftar.push(dataPendaftar);
+            
+            // Tampilkan hasil pengumuman
+            tampilkanHasil([dataPendaftar]);
+            
+            // Sembunyikan form, tampilkan hasil
+            registrationForm.classList.add('hidden');
+            hasilPengumuman.classList.remove('hidden');
+        });
+        
+        btnKembali.addEventListener('click', function() {
+            // Kembali ke form pendaftaran
+            registrationForm.classList.remove('hidden');
+            hasilPengumuman.classList.add('hidden');
+        });
+        
+        function tampilkanHasil(dataPendaftar) {
+            hasilContainer.innerHTML = '';
+            
+            dataPendaftar.forEach(pendaftar => {
+                const card = document.createElement('div');
+                card.className = 'border rounded-lg p-4 card-shadow bg-white';
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800">${pendaftar.nama}</h3>
+                            <p class="text-gray-600">Username: <span class="font-semibold">${pendaftar.username}</span></p>
+                            <p class="text-gray-600 mt-2">Fast Response: ${pendaftar.fastResponse}</p>
+                            <p class="text-gray-500 text-sm mt-1">${pendaftar.tanggalDaftar}</p>
+                        </div>
+                        <div class="success-badge text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            LOLOS
+                        </div>
+                    </div>
+                    <div class="mt-3 border-t pt-3">
+                        <p class="text-green-600 font-semibold">Selamat! Anda telah lolos seleksi sebagai Administrator.</p>
+                        <p class="text-gray-600 text-sm mt-1">Silakan tunggu instruksi lebih lanjut dari tim kami.</p>
+                    </div>
+                `;
+                
+                hasilContainer.appendChild(card);
+            });
+        }
+        
+        // Untuk melihat semua pendaftar (bisa diakses di console)
+        window.semuaPendaftar = semuaPendaftar;
+    </script>
+</body>
+</html>
